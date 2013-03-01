@@ -1,0 +1,3 @@
+INDEX VERSION 1.126+C:\Users\adam.piper\repos\scram\.metadata\.plugins\org.eclipse.jdt.core
+155693901.index
+2218688484.index
