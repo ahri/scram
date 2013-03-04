@@ -1,11 +1,16 @@
 package com.kaizen.scram.test;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+
+//import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 import android.hardware.Camera;
 import android.view.SurfaceHolder;
@@ -13,14 +18,22 @@ import android.view.SurfaceHolder;
 import com.kaizen.scram.concretes.*;
 import com.kaizen.scram.interfaces.*;
 
+import org.powermock.modules.junit4.PowerMockRunner;
+import static org.powermock.api.mockito.PowerMockito.*;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Camera.class})
 public class TestCameraAdapter {
 
 	@Test
 	public void shoot_void_Photo() throws IOException {
-		// dependencies
 		Camera camera = mock(Camera.class);
 		SurfaceHolder surface = mock(SurfaceHolder.class);
-		PhotoCallback callback = mock(PhotoCallback.class);
+		Camera.PictureCallback callback = mock(Camera.PictureCallback.class);
+		
+		doNothing().when(camera).setPreviewDisplay(surface);
+		doNothing().when(camera).startPreview();
+		doNothing().when(camera).takePicture(null, null, callback);
 		
 		// item under test
 		ICameraAdapter camera_adapter = new CameraAdapter(camera, surface, callback);
