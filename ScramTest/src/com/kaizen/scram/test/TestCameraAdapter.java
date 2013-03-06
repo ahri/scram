@@ -1,51 +1,61 @@
 package com.kaizen.scram.test;
 
-import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.io.IOException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-
-//import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import android.hardware.Camera;
 import android.view.SurfaceHolder;
 
-import com.kaizen.scram.concretes.*;
-import com.kaizen.scram.interfaces.*;
+import com.kaizen.scram.concretes.CameraAdapter;
+import com.kaizen.scram.interfaces.ICameraAdapter;
+import com.kaizen.scram.interfaces.ICameraCallbackFactory;
+import com.kaizen.scram.interfaces.IFileResource;
 
-import org.powermock.modules.junit4.PowerMockRunner;
-import static org.powermock.api.mockito.PowerMockito.*;
+// http://developer.android.com/reference/android/hardware/Camera.html
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Camera.class})
 public class TestCameraAdapter {
 
 	@Test
-	public void shoot_void_Photo() throws IOException {
+	public void shoot_void_cameraInteractions() throws IOException {
+		// Arrange
 		Camera camera = mock(Camera.class);
 		SurfaceHolder surface = mock(SurfaceHolder.class);
 		Camera.PictureCallback callback = mock(Camera.PictureCallback.class);
+		ICameraCallbackFactory factory = mock(ICameraCallbackFactory.class);
+		IFileResource file_resource = mock(IFileResource.class);
+		when(factory.create(file_resource))
+			.thenReturn(callback);
+		doNothing()
+			.when(camera).setPreviewDisplay(surface);
+		doNothing()
+			.when(camera).startPreview();
+		doNothing()
+			.when(camera).takePicture(null, null, callback);
 		
-		doNothing().when(camera).setPreviewDisplay(surface);
-		doNothing().when(camera).startPreview();
-		doNothing().when(camera).takePicture(null, null, callback);
+		mockStatic(Camera.class);
+		when(Camera.open()).thenReturn(camera);
 		
-		// item under test
-		ICameraAdapter camera_adapter = new CameraAdapter(camera, surface, callback);
+		// Act
+		ICameraAdapter camera_adapter = new CameraAdapter(surface, factory);
+		camera_adapter.shoot(file_resource);
 		
-		IPhoto photo = camera_adapter.shoot();
-		
-		// http://developer.android.com/reference/android/hardware/Camera.html
+		// Assert
+		verifyStatic();
+		Camera.open();
 		verify(camera).setPreviewDisplay(surface);
 		verify(camera).startPreview();
 		verify(camera).takePicture(null, null, callback);
-		
-		assertSame(photo, photo);
+		verify(camera).stopPreview();
+		verify(camera).release();
 	}
 
 }
