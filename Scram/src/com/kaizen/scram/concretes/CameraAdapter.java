@@ -23,7 +23,7 @@ public class CameraAdapter implements ICameraAdapter {
 	public void shoot(IFileResource file_resource) throws IOException {
 		Camera camera = Camera.open();
 		try {
-			camera.setPreviewDisplay(this.surface);
+			camera.setPreviewDisplay(this.surface); // TODO: write a test that throws an exception here, demanding a .release()
 			camera.startPreview();
 			camera.takePicture(null, null, this.callback_factory.create(file_resource));
 			camera.stopPreview();
